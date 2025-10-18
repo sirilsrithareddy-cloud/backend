@@ -26,19 +26,38 @@ app.use((req, res, next) => {
 // Static uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Routes
 app.use("/api/projects", projectRoutes);
 app.use("/api/auth", authRoutes);
 
 // Mongo connection
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mern_projects";
+
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
+    console.log("✅ Connected to MongoDB");
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
   })
   .catch((err) => {
-    console.error("Failed to connect to MongoDB", err);
+    console.error("❌ Failed to connect to MongoDB:", err.message);
+    console.log("💡 Make sure your MongoDB Atlas IP is whitelisted");
+    console.log("💡 Or check your MONGO_URI environment variable");
     process.exit(1);
   });
