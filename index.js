@@ -42,11 +42,11 @@ app.use("/api/auth", authRoutes);
 // Mongo connection
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mern_projects";
 
+console.log("🔗 Attempting to connect to MongoDB...");
+console.log("📍 URI:", MONGO_URI.replace(/\/\/.*@/, "//***:***@")); // Hide credentials in logs
+
 mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(MONGO_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");
     const PORT = process.env.PORT || 5000;
